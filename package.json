@@ -1,0 +1,1 @@
+{"description":"ちびゲーム広場 — 反射神経テスト・色違い当て・数字記憶のミニゲーム詰め合わせ","name":"chibigame","private":true,"scripts":{"check":"node --check app.js && node --check js/game-core.js && node --check sw.js","test":"node --test test/game-core.test.js"},"version":"1.0.0"}
