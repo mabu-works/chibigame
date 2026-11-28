@@ -1,0 +1,1 @@
+{"background_color":"#0a0f1c","description":"反射神経テスト・色違い当て・数字記憶のミニゲーム詰め合わせ","display":"standalone","icons":[{"sizes":"192x192","src":"icons/icon-192.png","type":"image/png"},{"sizes":"512x512","src":"icons/icon-512.png","type":"image/png"}],"lang":"ja","name":"ちびゲーム広場","scope":"./","short_name":"ちびゲーム","start_url":"./index.html","theme_color":"#0a0f1c"}

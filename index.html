@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>ちびゲーム広場 | ミニゲーム詰め合わせ</title>
+<meta name="description" content="反射神経テスト・色違い当て・数字記憶の3つのミニゲーム詰め合わせ。">
+<meta name="theme-color" content="#0a0f1c">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" type="image/png" href="icons/icon-192.png">
+<link rel="apple-touch-icon" href="icons/icon-192.png">
+<script>
+// 🌙 保存済みテーマを描画前に反映し、ちらつきを防ぐ
+try {
+  var savedTheme = localStorage.getItem("chibigame-theme");
+  if (savedTheme === "light" || savedTheme === "dark") {
+    document.documentElement.setAttribute("data-theme", savedTheme);
+  }
+} catch (e) { /* テーマ保存が使えない環境ではダークを既定にする */ }
+</script>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<nav class="topbar">
+  <div class="topbar-in">
+    <a class="brand" href="#top">🎮 ちびゲーム広場</a>
+    <button type="button" class="theme-toggle" id="themeToggle" aria-label="テーマ切り替え">🌙</button>
+  </div>
+</nav>
+
+<header class="site-header" id="top">
+  <p class="eyebrow">MINI GAMES</p>
+  <h1>🎮 ちびゲーム広場</h1>
+  <p class="tagline">3つのミニゲームでサクッと遊ぼう</p>
+</header>
+
+<main>
+  <!-- 🏠 トップ（ゲーム選択） -->
+  <section id="screen-home" class="screen">
+    <div class="game-grid">
+      <article class="card game-card">
+        <h2>⚡ 反射神経テスト</h2>
+        <p>「待って…」のあと緑に変わったら、すかさずタップ！ 5回の平均とベストを競います。早押しはフライングです。</p>
+        <p class="best-line">ベスト平均: <strong id="best-reaction-avg">―</strong> / ベスト1回: <strong id="best-reaction">―</strong></p>
+        <button class="btn btn-primary btn-big" data-goto="reaction">あそぶ</button>
+      </article>
+      <article class="card game-card">
+        <h2>🎨 色違い当て</h2>
+        <p>マスの中から1つだけ色の違うものをタップ。60秒で何問正解できるか。ミスは減点、正解するほど難しくなります。</p>
+        <p class="best-line">ベストスコア: <strong id="best-color">―</strong></p>
+        <button class="btn btn-primary btn-big" data-goto="color">あそぶ</button>
+      </article>
+      <article class="card game-card">
+        <h2>🔢 数字記憶</h2>
+        <p>一瞬表示される数字を覚えて入力。1問ごとに桁数が増えていきます。何桁まで覚えられるか挑戦！</p>
+        <p class="best-line">ベスト: <strong id="best-memory">―</strong></p>
+        <button class="btn btn-primary btn-big" data-goto="memory">あそぶ</button>
+      </article>
+    </div>
+  </section>
+
+  <!-- ⚡ 反射神経テスト -->
+  <section id="screen-reaction" class="screen hidden">
+    <div class="card">
+      <h2>⚡ 反射神経テスト</h2>
+      <p class="hud-line">回数: <strong id="rx-count">0 / 5</strong>　平均: <strong id="rx-avg">―</strong>　ベスト: <strong id="rx-best">―</strong></p>
+      <div id="rx-stage" class="rx-stage rx-idle" role="button" tabindex="0" aria-label="反射神経テストのタップエリア">
+        <p id="rx-message">タップしてスタート</p>
+        <p id="rx-sub" class="rx-sub"></p>
+      </div>
+      <p id="rx-history" class="note"></p>
+      <div class="nav-btns">
+        <button class="btn" id="rx-restart">最初から</button>
+        <button class="btn btn-ghost" data-goto="home">← トップへ</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- 🎨 色違い当て -->
+  <section id="screen-color" class="screen hidden">
+    <div class="card">
+      <h2>🎨 色違い当て</h2>
+      <p class="hud-line">残り: <strong id="col-time">60</strong>秒　スコア: <strong id="col-score">0</strong>　レベル: <strong id="col-level">1</strong></p>
+      <div id="col-stage">
+        <p id="col-message" class="center-msg">1マスだけ色が違います。タップしてスタート！</p>
+        <div id="col-grid" class="col-grid"></div>
+      </div>
+      <p id="col-feedback" class="note"></p>
+      <div class="nav-btns">
+        <button class="btn" id="col-start">スタート</button>
+        <button class="btn btn-ghost" data-goto="home">← トップへ</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- 🔢 数字記憶 -->
+  <section id="screen-memory" class="screen hidden">
+    <div class="card">
+      <h2>🔢 数字記憶</h2>
+      <p class="hud-line">現在の桁数: <strong id="mem-digits">3</strong>　到達: <strong id="mem-reached">―</strong></p>
+      <div id="mem-stage" class="mem-stage">
+        <p id="mem-display" class="mem-display">　</p>
+        <p id="mem-message" class="note">スタートを押すと数字が表示されます。覚えたら入力してください。</p>
+      </div>
+      <div id="mem-input-row" class="mem-input-row hidden">
+        <input id="mem-input" type="tel" inputmode="numeric" pattern="[0-9]*" autocomplete="off"
+               placeholder="覚えた数字を入力" aria-label="覚えた数字の入力">
+        <button class="btn btn-primary" id="mem-submit">こたえる</button>
+      </div>
+      <div class="nav-btns">
+        <button class="btn btn-primary" id="mem-start">スタート</button>
+        <button class="btn btn-ghost" data-goto="home">← トップへ</button>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer class="site-footer">
+  <p>ちびゲーム広場 — スコアはこの端末にだけ保存されます</p>
+</footer>
+
+<script src="js/game-core.js"></script>
+<script src="app.js"></script>
+<script>
+// 📦 Service Worker を登録する
+if ("serviceWorker" in navigator) {
+  window.addEventListener("load", () => {
+    navigator.serviceWorker.register("sw.js").catch(() => {});
+  });
+}
+</script>
+</body>
+</html>
